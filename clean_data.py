@@ -1,3 +1,5 @@
+from pathlib import Path
+
 import pandas as pd
 
 # Load scraped dataset
@@ -8,15 +10,15 @@ players = pd.read_csv("data/scraped_players.csv")
 players["jersey_number"] = pd.to_numeric(
     players["number"].str.replace("#", "", regex=False),
     errors="coerce"
-)
+).astype("Int64")
 
 
 # Convert heights from feet and inches into centimeters
 # First remove the inch symbol and split the height into feet and inches
 height_split = players["height"].str.replace("″", "", regex=False).str.split("′", expand=True)
 
-feet = pd.to_numeric(height_split[0])
-inches = pd.to_numeric(height_split[1])
+feet = pd.to_numeric(height_split[0], errors="coerce")
+inches = pd.to_numeric(height_split[1], errors="coerce")
 
 # Convert total inches into centimeters (1 inch = 2.54 cm)
 players["height_cm"] = ((feet * 12 + inches) * 2.54).round(1)
@@ -47,5 +49,10 @@ international_countries = [
 players["international"] = location.isin(international_countries).astype(int)
 
 
-# Write cleaned dataset to csv
-players.to_csv("data/cleaned_players.csv", index=False)
+# Find the data folder inside this repository
+# This will work even if we run the script from another folder
+data_folder = Path(__file__).resolve().parent / "data"
+data_folder.mkdir(exist_ok=True)
+
+# Load the dataset created by scraper.py
+players = pd.read_csv(data_folder / "scraped_players.csv")

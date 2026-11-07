@@ -1,6 +1,7 @@
 # Standard library
 import random
 import time
+from pathlib import Path
 
 # Third-party libraries
 import pandas as pd
@@ -102,8 +103,11 @@ for season in targeted_seasons:
 # Create dataframe
 players = pd.DataFrame(data_dict)
 
+
 # write players to csv
-players.to_csv("data/scraped_players.csv", index=False)
+# Create data folder if it does not already exist
+# Using __file__ lets the script find the folder regardless of where it is run
+data_folder = Path(__file__).resolve().parent / "data"
+data_folder.mkdir(exist_ok=True)
 
-
-
+players.to_csv(data_folder / "scraped_players.csv", index=False)
